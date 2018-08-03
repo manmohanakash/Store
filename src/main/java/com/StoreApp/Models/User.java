@@ -2,48 +2,71 @@ package com.StoreApp.Models;
 
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+
 
 @Entity
 public class User {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Integer userID;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column( columnDefinition="INTEGER(10) UNSIGNED")
+	private Integer userId;
+
+	@Column(length=25,unique = true,nullable=false)
 	private String userName;
-	private String firstName;
-	private String lastName;
-	private String email;
+	
+	@Column(length=25,nullable=false)
 	private String password;
+	
+	@Column(length=50,unique = true,nullable=false)
+	private String email;
+	
+	@Column( length=10,nullable=false)
 	private String userType;
+	
+	@Column( length=10,nullable=false)
 	private String accountStatus;
+	
+	@Column(nullable=false)
 	private Date lastLogin;
+	
+	@OneToOne
+	@JoinColumn(name="customer_id",columnDefinition="INTEGER(10) UNSIGNED UNIQUE",foreignKey=@ForeignKey(name="Fk_user_customer"))
+	private Customer customerId;
 	
 	User(){}
 
-	public User(Integer userID, String userName, String firstName, String lastName, String email, String password,
-			String userType, String accountStatus, Date lastLogin) {
+
+
+	public User(Integer userId, String userName, String password, String email, String userType, String accountStatus,
+			Date lastLogin, Customer customerId) {
 		super();
-		this.userID = userID;
+		this.userId = userId;
 		this.userName = userName;
-		this.firstName = firstName;
-		this.lastName = lastName;
-		this.email = email;
 		this.password = password;
+		this.email = email;
 		this.userType = userType;
 		this.accountStatus = accountStatus;
 		this.lastLogin = lastLogin;
+		this.customerId = customerId;
 	}
 
-	public Integer getUserID() {
-		return userID;
+
+
+	public Integer getUserId() {
+		return userId;
 	}
 
-	public void setUserID(Integer userID) {
-		this.userID = userID;
+	public void setUserID(Integer userId) {
+		this.userId = userId;
 	}
 
 	public String getUserName() {
@@ -52,30 +75,6 @@ public class User {
 
 	public void setUserName(String userName) {
 		this.userName = userName;
-	}
-
-	public String getFirstName() {
-		return firstName;
-	}
-
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
-
-	public String getLastName() {
-		return lastName;
-	}
-
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
 	}
 
 	public String getPassword() {
@@ -110,5 +109,29 @@ public class User {
 		this.lastLogin = lastLogin;
 	}
 
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public Customer getCustomerId() {
+		return customerId;
+	}
+
+	public void setCustomerId(Customer customerId) {
+		this.customerId = customerId;
+	}
+
+	@Override
+	public String toString() {
+		return "User [userId=" + userId + ", userName=" + userName + ", password=" + password + ", email=" + email
+				+ ", userType=" + userType + ", accountStatus=" + accountStatus + ", lastLogin=" + lastLogin
+				+ ", customerId=" + customerId + "]";
+	}
+
+	
 	
 }

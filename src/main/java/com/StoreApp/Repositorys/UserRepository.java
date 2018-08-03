@@ -7,7 +7,14 @@ import com.StoreApp.Models.User;
 
 
 public interface UserRepository extends CrudRepository<User,Integer>{
+
+	public Optional<User> getUserByUserId(Integer userId);
+
+	public Optional<User> getUserByUserName(String userName);
+
+	public Optional<User> getUserByEmail(String email);
+
+	public Optional<User> getUserByCustomerId(Integer customerId);
 	
-	public Optional<User> getUserByUserName(String UserName);
-	public Optional<User> getUserByEmail(String Email);
+	
 }

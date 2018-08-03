@@ -1,6 +1,7 @@
 package com.StoreApp.Controllers;
 
 
+import java.util.Date;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.StoreApp.Models.Customer;
 import com.StoreApp.Models.User;
+import com.StoreApp.Services.CustomerService;
 import com.StoreApp.Services.UserService;
 
 
@@ -28,98 +31,136 @@ public class UserController {
 	@Autowired
 	private UserService UserService;
 	
+	
+	@Autowired
+	private CustomerService CustomerService;
+	
 	@RequestMapping(method=RequestMethod.POST,value="/login", produces = "application/json")
 	public String loginUser(HttpServletRequest request,@RequestBody User user) throws JSONException {
 		
 		JSONObject response = new JSONObject();
 		
-		Optional<User> user_details = UserService.getUserByUserName(user.getUserName());	
+		Optional<User> currentUser = UserService.getUserByUserName(user.getUserName());	
 		
-		if(user_details.isPresent()) {
-			if(user_details.get().getPassword().equals(user.getPassword())) {
-					session = request.getSession();
-					session.setMaxInactiveInterval(10*60);
-					response.put("type","success");
-					session.setAttribute("UserID", user_details.get().getUserID());
-					session.setAttribute("UserEmail", user_details.get().getEmail());
+		if(currentUser.isPresent()) {
+			
+			User loggedUser = currentUser.get();
+			
+			if(loggedUser.getPassword().equals(user.getPassword())) {
+					
+				loggedUser.setLastLogin(new Date());
+				UserService.updateUser(loggedUser);
+					
+				if(!loggedUser.getAccountStatus().equals("active")) {
+					response.put("type","fail");
+					response.put("message","Account "+loggedUser.getAccountStatus());
+					return response.toString();
+				}
+					
+				session = request.getSession();
+				session.setMaxInactiveInterval(60*15);
+				session.setAttribute("loggedUser", loggedUser);
+				
+				response.put("type","success");
+				response.put("message","logged in");
+			
 			}
 			else{
 				response.put("type","fail");
 				response.put("message","Invalid Password");
 			}
 		}
-		else {
-			response.put("type","fail");
+		else
 			response.put("message","Username doesnot exist");
-		}
+
 		return response.toString();
-}
+	}
 	
 	
 	@RequestMapping(method=RequestMethod.POST,value="/register", produces = "application/json")
-	public String registerUser(HttpServletRequest request,@RequestBody User user) throws JSONException {
+	public String addUser(@RequestBody User user) throws JSONException {
 		
 		JSONObject response = new JSONObject();
-
-		try {
-		if(user==null || user.getFirstName().equals("") || user.getFirstName()==null ||
-			user.getLastName().equals("") || user.getLastName()==null ||
-			user.getEmail().equals("") ||  user.getEmail()==null ||
-			user.getUserName().equals("") ||  user.getUserName()==null ||
-			user.getPassword().equals("") ||user.getPassword()==null) {	
+		
+		if(user==null)
+		{
 			response.put("type","fail");
-			response.put("message","Cannot leave fields empty");
-		}else if(!user.getEmail().matches("^(.+)@(.+)$")) {	
-			response.put("type","fail");
-			response.put("message","Please enter Valid email");
-		}else if(!user.getUserName().matches("^[A-Za-z_][A-Za-z\\d_]*$")) {	
-			response.put("type","fail");
-			response.put("message","Username should be alphabets");
+			response.put("message","Null user object");	
+			return response.toString();
+			
 		}
-		else if(UserService.getUserByEmail(user.getEmail()).isPresent()) {
-			response.put("type","fail");
-			response.put("message","Email already exists");
-		}
-		else if(UserService.getUserByUserName(user.getUserName()).isPresent()) {
-			response.put("type","fail");
-			response.put("message","Username already exists");
-		}	
-		else {
-			if(UserService.addUser(user)==null) {
-				response.put("type","Fail");
+		
+		System.out.println(user.toString());
+		
+		String validationMessage = UserService.validateFields(user);
+			
+		user.setAccountStatus("active");
+		user.setLastLogin(new Date());
+		user.setUserType("customer");
+			
+		if(validationMessage.equals("success")) {
+			
+			User createdUser = UserService.addUser(user);	
+			if(createdUser == null)
 				response.put("message", "Unable to create account");
-			}
 			else {
-				response.put("type","success");
-				response.put("message","Account created");
 				
-			}
+
+				Customer customer = new Customer();
+				customer.setUserId(createdUser);
+				customer = CustomerService.addCustomer(customer);
+				createdUser.setCustomerId(customer);
+				UserService.updateUser(createdUser);
+				
+				response.put("type","success");
+				response.put("message","Account created");	
+				return response.toString();
+			}	
+			
+		}
+		else {
+			response.put("message",validationMessage);	
+			return response.toString();
 		}		
-		}catch(NullPointerException e) {
-			response.put("type","fail");
-		response.put("message","Please fill all fields");};
-		return response.toString();
+		
+		return response.toString();	
 	}
 		
 
-	@RequestMapping(value="/logout")
+	@RequestMapping(method=RequestMethod.POST,value="/logout", produces = "application/json")
 	public String logout(HttpSession session) throws JSONException {
 			
 		JSONObject response = new JSONObject();
 		
-		if (null == session.getAttribute("UserID"))  {
+		if (session.getAttribute("loggedUser")==null)  {
 			response.put("type","fail");
-			response.put("message","Please Login first");
-			response.put("action","login");
+			response.put("message","Not Logged In");
 		}
 		else {
 			session.invalidate();
 			response.put("type","success");
-			response.put("message","Logged Out");
-			response.put("action","login");			
+			response.put("message","Logged out");
 		}
+
+		response.put("redirect","login");			
 		return response.toString();		
 	}
 
 
+	@RequestMapping(method=RequestMethod.GET,value="/getUserDetails", produces = "application/json")
+	public String userDetails(HttpSession session) throws JSONException {
+		JSONObject response = new JSONObject();
+		
+		if(session.getAttribute("loggedUser")==null) {
+			response.put("type","fail");
+			response.put("message","Login needed");
+		}
+		else {
+			response.put("type","success");
+			response.put("user",(User) session.getAttribute("loggedUser"));
+		}				
+		
+		return response.toString();
+	}
+	
 }
