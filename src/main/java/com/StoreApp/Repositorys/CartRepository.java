@@ -7,15 +7,15 @@ import javax.transaction.Transactional;
 import org.springframework.data.repository.CrudRepository;
 
 import com.StoreApp.Models.Cart;
-import com.StoreApp.Models.CustomerCart;
+import com.StoreApp.Models.CartId;
 
 
 
-public interface CartRepository extends CrudRepository<Cart,CustomerCart>{
+public interface CartRepository extends CrudRepository<Cart,CartId>{
 
-	public ArrayList<Cart> getCartBycartIdCustomerId(Integer customerId);
+	public ArrayList<Cart> getCartByCartIdCustomerCustomerId(Integer customerId);
 	
 	@Transactional
-	public void deleteBycartIdCustomerId(Integer customerId);
+	public void deleteByCartIdCustomerCustomerId(Integer customerId);
 	
 }

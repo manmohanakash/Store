@@ -4,16 +4,31 @@
 	"userName":"manmohanakash", 
 	"password":"samepletest", 
 	"email":"akashmanmohan@gmail.com",
-	"userType":null,
-	"accountStatus":null,
-	"lastLogin":null,
-	"customerId":null
 }
 
 
-# Login Object to register new account
+# Login Object
 
 {
 	"userName":"user", 
 	"password":"password" 
+}
+
+
+
+# Category Object
+
+{
+	"categoryName":"Fashion",
+	"description":"Includes wearable cloths and accessories"
+}
+
+
+#Cart Item Object
+{
+	"cartId":{
+		"productId": 111,
+		"customerId": 5
+		},
+	"quantity":2
 }

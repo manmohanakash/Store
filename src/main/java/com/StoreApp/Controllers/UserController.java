@@ -109,7 +109,7 @@ public class UserController {
 				Customer customer = new Customer();
 				customer.setUserId(createdUser);
 				customer = CustomerService.addCustomer(customer);
-				createdUser.setCustomerId(customer);
+				createdUser.setCustomer(customer);
 				UserService.updateUser(createdUser);
 				
 				response.put("type","success");

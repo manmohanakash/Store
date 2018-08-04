@@ -1,9 +1,5 @@
 package com.StoreApp.Models;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
@@ -11,106 +7,75 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
-import javax.validation.constraints.Min;
-
 
 @Entity
 public class OrderItem {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column( columnDefinition="INTEGER(10) UNSIGNED")
-	private Integer	orderId;
+	@Column( columnDefinition="INTEGER(50) UNSIGNED")
+	private Integer orderDetailsId;
+	
+	
+	@ManyToOne
+	@JoinColumn(name="order_id",foreignKey=@ForeignKey(name="Fk_order_orderDetail"))
+	private OrderDetail orderId;
+	
 	
 	@OneToOne 
-	@JoinColumn(name="customer_id",foreignKey=@ForeignKey(name="Fk_order_customer"))	
-	private Customer customerId;
+	@JoinColumn(name="product_id",columnDefinition="INTEGER(10) UNSIGNED",foreignKey=@ForeignKey(name="Fk_product_productId"))	
+	private Product	product;
 	
-	private Date orderDate;
-	
-	private Date shippingDate;
-	
-	@Column(length=50)
-	private String tracking;
+	@Column(columnDefinition="INTEGER(10) UNSIGNED")
+	private Integer quantity;
 	
 	@Column(nullable=false)
-	@Min(0)
-	private Integer orderTotal;
+	private Integer unitPrice=1;
 	
-	@OneToMany(mappedBy="orderId")
-	private Collection<OrderDetails> orderDetails = new ArrayList<>();
+	
 
-	public OrderItem(Integer orderId, Customer customerId, Date orderDate, Date shippingDate, String tracking,
-			Integer orderTotal, Collection<OrderDetails> orderDetails) {
-		super();
+	OrderItem(){}
+
+	public OrderItem(OrderDetail orderId, Product product, Integer quantity, Integer unitPrice) {
 		this.orderId = orderId;
-		this.customerId = customerId;
-		this.orderDate = orderDate;
-		this.shippingDate = shippingDate;
-		this.tracking = tracking;
-		this.orderTotal = orderTotal;
-		this.orderDetails = orderDetails;
+		this.product = product;
+		this.quantity = quantity;
+		this.unitPrice = unitPrice;
 	}
 
-	public Integer getOrderId() {
+	public OrderDetail getOrderId() {
 		return orderId;
 	}
 
-	public void setOrderId(Integer orderId) {
+	public void setOrderId(OrderDetail orderId) {
 		this.orderId = orderId;
 	}
 
-	public Customer getCustomerId() {
-		return customerId;
+	public Product getProduct() {
+		return product;
 	}
 
-	public void setCustomerId(Customer customerId) {
-		this.customerId = customerId;
+	public void setProduct(Product product) {
+		this.product = product;
 	}
 
-	public Date getOrderDate() {
-		return orderDate;
+	public Integer getQuantity() {
+		return quantity;
 	}
 
-	public void setOrderDate(Date orderDate) {
-		this.orderDate = orderDate;
+	public void setQuantity(Integer quantity) {
+		this.quantity = quantity;
 	}
 
-	public Date getShippingDate() {
-		return shippingDate;
+	public Integer getUnitPrice() {
+		return unitPrice;
 	}
 
-	public void setShippingDate(Date shippingDate) {
-		this.shippingDate = shippingDate;
+	public void setUnitPrice(Integer unitPrice) {
+		this.unitPrice = unitPrice;
 	}
 
-	public String getTracking() {
-		return tracking;
-	}
-
-	public void setTracking(String tracking) {
-		this.tracking = tracking;
-	}
-
-	public Integer getOrderTotal() {
-		return orderTotal;
-	}
-
-	public void setOrderTotal(Integer orderTotal) {
-		this.orderTotal = orderTotal;
-	}
-
-	public Collection<OrderDetails> getOrderDetails() {
-		return orderDetails;
-	}
-
-	public void setOrderDetails(Collection<OrderDetails> orderDetails) {
-		this.orderDetails = orderDetails;
-	}
-	
-
-	
 	
 }

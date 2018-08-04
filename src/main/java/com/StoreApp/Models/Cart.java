@@ -1,34 +1,33 @@
 package com.StoreApp.Models;
 
+
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.validation.constraints.Min;
-
 @Entity
-public class Cart {
+public class Cart{
 
 	@EmbeddedId
-	private CustomerCart cartId;
+	private CartId cartId;
 	
-	@Min(0)
 	@Column( columnDefinition="INTEGER(10) UNSIGNED")
 	private Integer quantity;
-	
-	Cart(){}
 
-	public Cart(CustomerCart cartProduct, @Min(1) Integer quantity) {
+	
+	public Cart() {};
+	
+	public Cart(CartId cartId, Integer quantity) {
 		super();
-		this.cartId = cartProduct;
+		this.cartId = cartId;
 		this.quantity = quantity;
 	}
 
-	public CustomerCart getCartProduct() {
+	public CartId getCartId() {
 		return cartId;
 	}
 
-	public void setCartProduct(CustomerCart cartProduct) {
-		this.cartId = cartProduct;
+	public void setCartId(CartId cartId) {
+		this.cartId = cartId;
 	}
 
 	public Integer getQuantity() {
@@ -38,6 +37,6 @@ public class Cart {
 	public void setQuantity(Integer quantity) {
 		this.quantity = quantity;
 	}
-	
-	
+
+
 }

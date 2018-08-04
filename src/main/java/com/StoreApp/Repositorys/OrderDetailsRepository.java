@@ -4,10 +4,10 @@ import java.util.ArrayList;
 
 import org.springframework.data.repository.CrudRepository;
 
-import com.StoreApp.Models.OrderDetails;
+import com.StoreApp.Models.OrderItem;
 
-public interface OrderDetailsRepository extends CrudRepository<OrderDetails,Integer>{
+public interface OrderDetailsRepository extends CrudRepository<OrderItem,Integer>{
 
-	public ArrayList<OrderDetails> getOrderDetailsByOrderId(Integer orderId);
+	public ArrayList<OrderItem> getOrderDetailsByOrderId(Integer orderId);
 	
 }

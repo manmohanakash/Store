@@ -1,13 +1,19 @@
 package com.StoreApp.Models;
 
+import java.util.Collection;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 public class Customer {
@@ -42,14 +48,20 @@ public class Customer {
 	private String phone;
 	
 	@OneToOne
-	@JoinColumn(name="user_id",columnDefinition="INTEGER(10) UNSIGNED NOT NULL UNIQUE",foreignKey=@ForeignKey(name="Fk_customer_user"))
+	@JoinColumn(name="user_id",columnDefinition="INTEGER(10) UNSIGNED NOT NULL UNIQUE",foreignKey=@ForeignKey(name="Fk_user_userId"))
 	private User userId;
 	
+	@OneToMany(mappedBy="cartId.customer",fetch=FetchType.LAZY)
+	@JsonBackReference
+    private Collection<Cart> cart;
+	
+
 	public Customer() {}
 
 
+
 	public Customer(Integer customerId, String firstName, String lastName, String doorNumber, String address,
-			String pincode, String city, String country, String phone, User userId) {
+			String pincode, String city, String country, String phone, User userId, Collection<Cart> cart) {
 		super();
 		this.customerId = customerId;
 		this.firstName = firstName;
@@ -61,7 +73,11 @@ public class Customer {
 		this.country = country;
 		this.phone = phone;
 		this.userId = userId;
+		this.cart = cart;
 	}
+
+
+
 
 	public Integer getCustomerId() {
 		return customerId;
@@ -143,6 +159,15 @@ public class Customer {
 
 	public void setUserId(User userId) {
 		this.userId = userId;
+	}
+
+
+	public Collection<Cart> getCart() {
+		return cart;
+	}
+
+	public void setCart(Collection<Cart> cart) {
+		this.cart = cart;
 	}
 	
 	

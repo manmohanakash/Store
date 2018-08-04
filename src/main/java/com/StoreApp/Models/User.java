@@ -10,9 +10,13 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.Email;
 
 
 @Entity
+@Table(uniqueConstraints = {@UniqueConstraint(name="email",columnNames = "email"),@UniqueConstraint(name="user_name",columnNames = "userName")})
 public class User {
 
 	@Id
@@ -20,13 +24,14 @@ public class User {
 	@Column( columnDefinition="INTEGER(10) UNSIGNED")
 	private Integer userId;
 
-	@Column(length=25,unique = true,nullable=false)
+	@Column(length=25,nullable=false)
 	private String userName;
 	
 	@Column(length=25,nullable=false)
 	private String password;
 	
-	@Column(length=50,unique = true,nullable=false)
+	@Email
+	@Column(length=50,nullable=false)
 	private String email;
 	
 	@Column( length=10,nullable=false)
@@ -39,15 +44,14 @@ public class User {
 	private Date lastLogin;
 	
 	@OneToOne
-	@JoinColumn(name="customer_id",columnDefinition="INTEGER(10) UNSIGNED UNIQUE",foreignKey=@ForeignKey(name="Fk_user_customer"))
-	private Customer customerId;
+	@JoinColumn(name="customer_id",columnDefinition="INTEGER(10) UNSIGNED UNIQUE",foreignKey=@ForeignKey(name="Fk_customer_customerId"))
+	private Customer customer;
 	
 	User(){}
 
 
-
 	public User(Integer userId, String userName, String password, String email, String userType, String accountStatus,
-			Date lastLogin, Customer customerId) {
+			Date lastLogin, Customer customer) {
 		super();
 		this.userId = userId;
 		this.userName = userName;
@@ -56,7 +60,7 @@ public class User {
 		this.userType = userType;
 		this.accountStatus = accountStatus;
 		this.lastLogin = lastLogin;
-		this.customerId = customerId;
+		this.customer = customer;
 	}
 
 
@@ -117,19 +121,19 @@ public class User {
 		this.email = email;
 	}
 
-	public Customer getCustomerId() {
-		return customerId;
+	public Customer getCustomer() {
+		return customer;
 	}
 
-	public void setCustomerId(Customer customerId) {
-		this.customerId = customerId;
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
 	}
 
 	@Override
 	public String toString() {
 		return "User [userId=" + userId + ", userName=" + userName + ", password=" + password + ", email=" + email
 				+ ", userType=" + userType + ", accountStatus=" + accountStatus + ", lastLogin=" + lastLogin
-				+ ", customerId=" + customerId + "]";
+				+ ", customerId=" + customer + "]";
 	}
 
 	

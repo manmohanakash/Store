@@ -15,7 +15,7 @@ public class CartService {
 	private CartRepository CartRepository;
 	
 	public ArrayList<Cart> getCartForCustomer(Integer customerId){
-		return CartRepository.getCartBycartIdCustomerId(customerId);
+		return CartRepository.getCartByCartIdCustomerCustomerId(customerId);
 	}
 
 	public Cart addItemToCart(Cart cart) {
@@ -27,7 +27,7 @@ public class CartService {
 	}
 	
 	public void clearCart(Integer customerId){
-		CartRepository.deleteBycartIdCustomerId(customerId);
+		CartRepository.deleteByCartIdCustomerCustomerId(customerId);
 	}
 	
 }

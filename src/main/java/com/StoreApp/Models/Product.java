@@ -1,5 +1,9 @@
 package com.StoreApp.Models;
 
+
+import java.util.Collection;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -9,14 +13,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
+import javax.persistence.OneToMany;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 public class Product {
@@ -35,35 +34,39 @@ public class Product {
     @Column( columnDefinition="DECIMAL(10,2)")
     private Integer price;
     
-    @Max(100)
 	private Integer discount=0;
     
     @Column(columnDefinition="TEXT")
     private String description;
     
-    @Min(0)
     @Column(columnDefinition="INTEGER(10) UNSIGNED")
-    private Integer count=0;
+    private Integer count;
     
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name="category_id",columnDefinition="INTEGER(10) UNSIGNED",foreignKey=@ForeignKey(name="Fk_product_categoryId"))
+    @JoinColumn(name="category_id",columnDefinition="INTEGER(10) UNSIGNED",foreignKey=@ForeignKey(name="category_categoryid"))
     private Category category;
     
-    public Product() {}
     
-	public Product(Integer productId, String name, String company, Integer price, Integer discount, String description, Integer count,
-			Category category) {
+    @OneToMany(mappedBy="cartId.product",fetch=FetchType.LAZY,cascade=CascadeType.ALL)
+    @JsonBackReference
+    private Collection<Cart> cart;
+   
+	public Product() {}
+    
+	public Product(Integer productId, String name, String company, Integer price, Integer discount,
+			String description, Integer count, Category category, Collection<Cart> cart) {
 		super();
 		this.productId = productId;
 		this.name = name;
 		this.company = company;
 		this.price = price;
+		this.discount = discount;
 		this.description = description;
 		this.count = count;
-		this.discount = discount;
 		this.category = category;
+		this.cart = cart;
 	}
-
+	
 	public Integer getProductId() {
 		return productId;
 	}
@@ -129,6 +132,13 @@ public class Product {
 		this.category = category;
 	}
     
+	public Collection<Cart> getCart() {
+		return cart;
+	}
+
+	public void setCart(Collection<Cart> cart) {
+		this.cart = cart;
+	}
 	
     
 }

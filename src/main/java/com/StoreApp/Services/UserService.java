@@ -44,7 +44,7 @@ public class UserService {
 	}
 	
 	public Optional<User> getUserByCustomerId(Integer customerId) {
-		return UserRepository.getUserByCustomerId(customerId);
+		return UserRepository.getUserByCustomerCustomerId(customerId);
 	}
 	
 	

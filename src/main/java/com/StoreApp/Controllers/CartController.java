@@ -7,6 +7,7 @@ import javax.servlet.http.HttpSession;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,7 +15,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.StoreApp.Models.Cart;
-import com.StoreApp.Models.Category;
+import com.StoreApp.Models.CartId;
+import com.StoreApp.Models.Customer;
 import com.StoreApp.Models.Product;
 import com.StoreApp.Models.User;
 import com.StoreApp.Services.CartService;
@@ -29,6 +31,8 @@ public class CartController {
 	@Autowired
 	private CartService CartService;
 	
+
+	
 	@RequestMapping(method=RequestMethod.GET,value="/getCart", produces = "application/json")
 	public String getCart(HttpSession session) throws JSONException, JsonProcessingException {
 		
@@ -42,7 +46,7 @@ public class CartController {
 			JSONArray itemsArray = new JSONArray();
 			ObjectWriter write = new ObjectMapper().writer();
 			User loggedUser = (User) session.getAttribute("loggedUser");
-			ArrayList<Cart> items = CartService.getCartForCustomer(loggedUser.getCustomerId().getCustomerId());
+			ArrayList<Cart> items = CartService.getCartForCustomer(loggedUser.getCustomer().getCustomerId());
 			
 			for(Cart item:items) {
 				JSONObject json = new JSONObject(write.writeValueAsString(item));
@@ -56,7 +60,7 @@ public class CartController {
 	}
 	
 	@RequestMapping(method=RequestMethod.POST,value="/updateCartItem", produces = "application/json")
-	public String addToCart(HttpSession session,@RequestBody Cart cart) throws JSONException, JsonProcessingException {
+	public String addToCart(HttpSession session,@RequestBody String request) throws JSONException, JsonProcessingException {
 		
 		JSONObject response = new JSONObject();
 		
@@ -66,21 +70,28 @@ public class CartController {
 			response.put("type","fail");
 			response.put("message","Not Logged In");
 		}
-		else if(!loggedUser.getCustomerId().getCustomerId().equals(cart.getCartProduct().getCustomerId())) {
-			response.put("response",session.getAttribute("loggedUser")+" "+Integer.toString(cart.getCartProduct().getCustomerId()));
-			response.put("type","fail");
-			response.put("message","Cannot add to other customer");
-		}
 		else {
+			JSONObject obj = (JSONObject) new JSONTokener(request).nextValue();
+			Integer quanity=Integer.parseInt(obj.get("quantity").toString());
+			Integer productId= Integer.parseInt(obj.get("productId").toString());
 			
-			if(cart.getQuantity().equals(0)) {
-				CartService.removeItemFromCart(cart);
+			Customer currentCustomer = new Customer();
+			currentCustomer.setCustomerId(loggedUser.getCustomer().getCustomerId());
+			Product currentProduct = new Product();
+			currentProduct.setProductId(productId);
+			
+			Cart cartItem = new Cart();
+			cartItem.setQuantity(quanity);
+			cartItem.setCartId(new CartId(currentProduct,currentCustomer));
+			
+			if(cartItem.getQuantity().equals(0)) {
+				CartService.removeItemFromCart(cartItem);
 				response.put("type", "success");
 				response.put("message", "Item removed");
 				return response.toString();				
 			}					
 			
-			Cart addItem = CartService.addItemToCart(cart);
+			Cart addItem = CartService.addItemToCart(cartItem);
 			if(addItem!=null) {
 			response.put("type", "success");
 			response.put("message", "Item added");
@@ -104,7 +115,7 @@ public class CartController {
 			response.put("message","Not Logged In");
 		}
 		else{
-			Integer userId = ((User)session.getAttribute("loggedUser")).getCustomerId().getCustomerId();
+			Integer userId = ((User)session.getAttribute("loggedUser")).getCustomer().getCustomerId();
 			CartService.clearCart(userId);
 			response.put("type","success");
 			response.put("message","Cart cleared");

@@ -4,12 +4,12 @@ import java.util.Optional;
 
 import org.springframework.data.repository.CrudRepository;
 
-import com.StoreApp.Models.OrderItem;
+import com.StoreApp.Models.OrderDetail;
 
-public interface OrderRepository extends CrudRepository<OrderItem,Integer>{
+public interface OrderRepository extends CrudRepository<OrderDetail,Integer>{
 
-	public Optional<OrderItem> getOrderItemByOrderId(Integer orderId);
+	public Optional<OrderDetail> getOrderItemByOrderId(Integer orderId);
 	
-	public Optional<OrderItem> getOrderItemByCustomerId(Integer customerId);
+	public Optional<OrderDetail> getOrderItemByCustomerId(Integer customerId);
 
 }
